@@ -19,3 +19,6 @@ dist/
 # Test artifacts
 .pytest_cache/
 .coverage
+
+# PDFs
+pdfs/
