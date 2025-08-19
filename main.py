@@ -1,7 +1,11 @@
 import argparse
 import os
 import sys
+import base64
+from io import BytesIO
 from PyPDF2 import PdfReader
+import qrcode
+
 
 def extract_links(path):
     links = {}
@@ -32,9 +36,10 @@ def create_html_report(links, pdf_name):
   h1 {{ color: #333; }}
   h2 {{ color: #555; border-bottom: 1px solid #ccc; padding-bottom: 5px; }}
   ul {{ list-style-type: none; padding-left: 0; }}
-  li {{ margin-bottom: 5px; }}
-  a {{ text-decoration: none; color: #0066cc; }}
+  li {{ margin-bottom: 15px; display: flex; align-items: center; }}
+  a {{ text-decoration: none; color: #0066cc; margin-left: 10px;}}
   .page-container {{ border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; }}
+  .qr-code {{ width: 100px; height: 100px; }}
 </style>
 </head>
 <body>
@@ -48,7 +53,22 @@ def create_html_report(links, pdf_name):
             html += f"<h2>Page {page_num}</h2>"
             html += "<ul>"
             for link in page_links:
-                html += f'<li><a href="{link}" target="_blank">{link}</a></li>'
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(link)
+                qr.make(fit=True)
+
+                img = qr.make_image(fill_color="black", back_color="white")
+                
+                buffered = BytesIO()
+                img.save(buffered, format="PNG")
+                img_str = base64.b64encode(buffered.getvalue()).decode()
+
+                html += f'<li><img class="qr-code" src="data:image/png;base64,{img_str}"><a href="{link}" target="_blank">{link}</a></li>'
             html += "</ul>"
             html += "</div>"
 
