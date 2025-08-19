@@ -1,0 +1,14 @@
+[project]
+name = "pdf-to-qr-code"
+version = "0.1.0"
+description = "Extracts hyperlinks from a PDF file and generates an HTML report with QR codes."
+authors = []
+dependencies = [
+    "pypdf2==3.0.1",
+    "qrcode",
+    "Pillow",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
